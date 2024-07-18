@@ -1,12 +1,10 @@
 import c3d
-import time
 import numpy as np
-from collections import deque
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 
-DESIRED_ANGLE = 170
+DESIRED_ANGLE = 135 # The bearing (in degrees)
 FRAMES_PER_SECOND = 200
 PAUSE_BETWEEN_FRAMES = 1 / FRAMES_PER_SECOND
 
@@ -84,67 +82,48 @@ def calculate_bounding_box(points):
 
 
 def init():
-    # ax.set_axis_off()
+    global scat_shoulders, scat_coms, scat_desired
+    
     # Set initial limits based on the first frame
-    points = all_frames[0]
+    points = all_frames[0][1]
     (min_x, max_x), (min_y, max_y), (min_z, max_z) = calculate_bounding_box(points)
-    padding = 0
+    padding = 100
     max_range = np.array([max_x - min_x, max_y - min_y, max_z - min_z]).max() / 2.0
-    mid_x = (max_x + min_x) * 0.5
-    mid_y = (max_y + min_y) * 0.5
-    mid_z = (max_z + min_z) * 0.5
+    mid_x, mid_y, mid_z = (max_x + min_x) / 2, (max_y + min_y) / 2, (max_z + min_z) / 2
     ax.set_xlim(mid_x - max_range - padding, mid_x + max_range + padding)
     ax.set_ylim(mid_y - max_range - padding, mid_y + max_range + padding)
     ax.set_zlim(mid_z - max_range - padding, mid_z + max_range + padding)
 
-    ax.margins(1)
+    # Create persistent scatter objects
+    scat_shoulders = ax.scatter([], [], [], c=['red', 'blue'], s=20, zorder=10)
+    scat_coms = ax.scatter([], [], [], c=['red', 'blue'], s=20, zorder=10)
+    scat_desired = ax.scatter([], [], [], c=['green', 'green', 'orange', 'orange'], s=20, alpha=0.5, zorder=10)
     
-    return []
-
+    return [scat_shoulders, scat_coms, scat_desired]
 
 def update(frame):
-    # if not frame % 2 == 0:
-    #     return []
-    
     ax.clear()
-    ax.margins(1)
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
-    ax.set_title(f"Arm Swing Angle Visualization - Desired Angle: {DESIRED_ANGLE}°")
-    # ax.set_axis_off()
 
     i, points, analog = all_frames[frame]
 
-    # Calculate bounding box
+    # Calculate bounding box and set limits
     (min_x, max_x), (min_y, max_y), (min_z, max_z) = calculate_bounding_box(points)
-
-    # Add some padding
-    padding = 100  # Adjust this value as needed
-    ax.set_xlim(min_x - padding, max_x + padding)
-    ax.set_ylim(min_y - padding, max_y + padding)
-    ax.set_zlim(min_z - padding, max_z + padding)
-
-    # Ensure equal aspect ratio
+    padding = 100
     max_range = np.array([max_x - min_x, max_y - min_y, max_z - min_z]).max() / 2.0
-    mid_x = (max_x + min_x) * 0.5
-    mid_y = (max_y + min_y) * 0.5
-    mid_z = (max_z + min_z) * 0.5
-    ax.set_xlim(mid_x - max_range, mid_x + max_range)
-    ax.set_ylim(mid_y - max_range, mid_y + max_range)
-    ax.set_zlim(mid_z - max_range, mid_z + max_range)
+    mid_x, mid_y, mid_z = (max_x + min_x) / 2, (max_y + min_y) / 2, (max_z + min_z) / 2
+    ax.set_xlim(mid_x - max_range - padding, mid_x + max_range + padding)
+    ax.set_ylim(mid_y - max_range - padding, mid_y + max_range + padding)
+    ax.set_zlim(mid_z - max_range - padding, mid_z + max_range + padding)
 
     right_shoulder = None
     left_shoulder = None
     right_com = None
     left_com = None
-    
-    # Remove old collections
-    for collection in ax.collections:
-        collection.remove()
-    
 
-    for point, label in zip(points, labels):
+    for point, label in zip(points.T, labels):
         if label == "RSHO":
             right_shoulder = point[:3]
         elif label == "LSHO":
@@ -156,18 +135,12 @@ def update(frame):
 
     artists = plot_arms(ax, right_shoulder, left_shoulder, right_com, left_com)
     return artists
-
-
 def plot_arms(ax, rsho: tuple, lsho: tuple, rcom: tuple, lcom: tuple):
     artists = []
 
-    # Create points for shoulders and COMs
-    point_size = 50  # Adjust this value to change the size of the points
-    rsho_point = ax.scatter(rsho[0], rsho[1], rsho[2], c="red", s=point_size)
-    lsho_point = ax.scatter(lsho[0], lsho[1], lsho[2], c="blue", s=point_size)
-    rcom_point = ax.scatter(rcom[0], rcom[1], rcom[2], c="red", s=point_size)
-    lcom_point = ax.scatter(lcom[0], lcom[1], lcom[2], c="blue", s=point_size)
-    artists.extend([rsho_point, lsho_point, rcom_point, lcom_point])
+    # Update scatter plots
+    scat_shoulders._offsets3d = ([rsho[0], lsho[0]], [rsho[1], lsho[1]], [rsho[2], lsho[2]])
+    scat_coms._offsets3d = ([rcom[0], lcom[0]], [rcom[1], lcom[1]], [rcom[2], lcom[2]])
 
     # Draw lines between the shoulders and COMs
     line1, = ax.plot([rsho[0], rcom[0]], [rsho[1], rcom[1]], [rsho[2], rcom[2]], color="blue")
@@ -189,7 +162,7 @@ def plot_arms(ax, rsho: tuple, lsho: tuple, rcom: tuple, lcom: tuple):
     line4, = ax.plot([lsho[0], lsho[0]], [lsho[1], lsho[1]], [lsho[2], 0], linestyle="--", color="gray")
     artists.extend([line3, line4])
 
-    # Plot lines for the desired angles and add points for desired COM positions
+    # Plot lines for the desired angles and update desired COM positions
     rf_desired_end = rsho + rf_desired_vector
     lf_desired_end = lsho + lf_desired_vector
     rb_desired_end = rsho + rb_desired_vector
@@ -202,22 +175,22 @@ def plot_arms(ax, rsho: tuple, lsho: tuple, rcom: tuple, lcom: tuple):
     
     artists.extend([line5, line6, line7, line8])
 
-    # Add points for desired COM positions
-    desired_points = ax.scatter([rf_desired_end[0], lf_desired_end[0], rb_desired_end[0], lb_desired_end[0]],
-                                [rf_desired_end[1], lf_desired_end[1], rb_desired_end[1], lb_desired_end[1]],
-                                [rf_desired_end[2], lf_desired_end[2], rb_desired_end[2], lb_desired_end[2]],
-                                c=['green', 'green', 'orange', 'orange'], s=point_size, alpha=0.5)
-    artists.append(desired_points)
+    # Update desired COM positions
+    scat_desired._offsets3d = ([rf_desired_end[0], lf_desired_end[0], rb_desired_end[0], lb_desired_end[0]],
+                               [rf_desired_end[1], lf_desired_end[1], rb_desired_end[1], lb_desired_end[1]],
+                               [rf_desired_end[2], lf_desired_end[2], rb_desired_end[2], lb_desired_end[2]])
 
     # Add text for angles
     r_text = ax.text(rsho[0], rsho[1], rsho[2], f"R: {r_angle:.1f}°", color="blue")
     l_text = ax.text(lsho[0], lsho[1], lsho[2], f"L: {l_angle:.1f}°", color="red")
     artists.extend([r_text, l_text])
 
+    artists.extend([scat_shoulders, scat_coms, scat_desired])
     return artists
+
 if __name__ == "__main__":
     fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection="3d")
+    ax = fig.add_subplot(projection="3d")
 
     num_frames = len(all_frames)
     ani = FuncAnimation(
