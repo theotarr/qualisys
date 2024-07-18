@@ -4,8 +4,6 @@ import numpy as np
 from collections import deque
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from mpl_toolkits.mplot3d import Axes3D
-import mpl_toolkits.mplot3d.art3d as art3d
 
 
 DESIRED_ANGLE = 170
@@ -18,10 +16,6 @@ labels = reader.point_labels
 # Pre-load all frames
 all_frames = list(reader.read_frames())
 points = all_frames[0][1]
-
-# Store the last 10 frame times for FPS calculation
-frame_times = deque(maxlen=10)  # Store the last 10 frame times
-last_frame_time = time.time()
 
 
 def find_point_index(labels, target_label):
