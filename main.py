@@ -1,7 +1,5 @@
 """
-    Minimal usage example
-    Connects to QTM and streams 3D data forever
-    (start QTM first, load file, Play->Play with Real-Time output)
+Connect to QTM and streams 3D data forever
 """
 
 import asyncio
@@ -12,17 +10,19 @@ PASSWORD = "$KHU15"
 
 
 def on_packet(packet):
-    """ Callback function that is called everytime a data packet arrives from QTM """
-    print("Framenumber: {}".format(packet.framenumber))
+    """Callback function that is called everytime a data packet arrives from QTM"""
+    print(f"Framenumber: {packet.framenumber}")
     header, markers = packet.get_3d_markers()
-    print("Component info: {}".format(header))
+    print(f"Component info: {header}")
     for marker in markers:
         print("\t", marker)
 
 
 async def setup():
-    """ Main function """
-    connection = await qtm_rt.connect(IP_ADDRESS, version="1.8") # Use at least version 1.8
+    """Main function"""
+    connection = await qtm_rt.connect(
+        IP_ADDRESS, version="1.8"
+    )  # Use at least version 1.8
     if connection is None:
         return
 
