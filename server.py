@@ -1,5 +1,5 @@
-import json
 import zmq
+import json
 import asyncio
 import qtm_rt
 import numpy as np

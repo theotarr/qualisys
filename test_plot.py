@@ -18,7 +18,7 @@ from blit import BlitManager
 
 
 DESIRED_ANGLE = 170
-FRAMES_PER_SECOND = 200
+FRAMES_PER_SECOND = 24
 PAUSE_BETWEEN_FRAMES = 1 / FRAMES_PER_SECOND
 
 
@@ -103,12 +103,13 @@ def main():
     )
 
     # Add the COMs and target COMs
-    left_com_point = ax.scatter(0, 0, color="blue", animated=True)
-    right_com_point = ax.scatter(0, 0, color="red", animated=True)
-    left_forward_com_point = ax.scatter(0, 0, color="blue", alpha=0.7, animated=True)
-    right_forward_com_point = ax.scatter(0, 0, color="red", alpha=0.7, animated=True)
-    left_backward_com_point = ax.scatter(0, 0, color="blue", alpha=0.7, animated=True)
-    right_backward_com_point = ax.scatter(0, 0, color="red", alpha=0.7, animated=True)
+    (left_com_point,) = ax.plot(0, 0, "bo", animated=True)
+    (left_forward_com_point,) = ax.plot(0, 0, "bo", alpha=0.7, animated=True)
+    (left_backward_com_point,) = ax.plot(0, 0, "bo", alpha=0.7, animated=True)
+    
+    (right_com_point,) = ax.plot(0, 0, "ro", animated=True)
+    (right_forward_com_point,) = ax.plot(0, 0, "ro", alpha=0.7, animated=True)
+    (right_backward_com_point,) = ax.plot(0, 0, "ro", alpha=0.7, animated=True)
     
     print("Starting animation...")
     print("left_com_point: ", left_com_point)
@@ -129,11 +130,8 @@ def main():
     plt.show(block=False)
     plt.pause(0.1)
     
-    fr_number.set_text("999")
-    bm.update()
-
     packet_number = 0
-    time.sleep(10)
+
     try:
         while True:
         
