@@ -118,7 +118,7 @@ def main():
     )
 
     # Add the COMs and target COMs
-    (left_com_point,) = ax.plot(0, 0, "bo", markersize=10, animated=True)
+    (left_com_point,) = ax.plot(0, 0, "bo", markersize=20, animated=True)
     (left_forward_com_point,) = ax.plot(
         0, 0, "bo", markersize=40, alpha=0.7, animated=True, markerfacecolor='none', markeredgecolor='b'
     )
@@ -126,7 +126,7 @@ def main():
         0, 0, "bo", markersize=40, alpha=0.7, animated=True, markerfacecolor='none', markeredgecolor='b'
     )
 
-    (right_com_point,) = ax.plot(0, 0, "ro", markersize=10, animated=True)
+    (right_com_point,) = ax.plot(0, 0, "ro", markersize=20, animated=True)
     (right_forward_com_point,) = ax.plot(
         0, 0, "ro",markerfacecolor='none', markeredgecolor='r', markersize=40, alpha=0.7, animated=True
     )
