@@ -38,7 +38,7 @@ async def setup():
 
         print("Connected to QTM")
         await connection.stream_frames(
-            components=["3d"], frames="frequency:30", on_packet=on_packet
+            components=["3d"], frames="frequency:40", on_packet=on_packet
         )
 
         return connection
