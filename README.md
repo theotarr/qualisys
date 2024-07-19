@@ -23,5 +23,5 @@ python server.py
 2. Run the client to connect to the socket and visualize the arm swing.
 
 ```bash
-python test_plot.py
+python plot.py
 ```
