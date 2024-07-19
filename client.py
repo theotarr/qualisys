@@ -1,12 +1,9 @@
 import os
+import zmq
 import json
 import logging
 import numpy as np
-import zmq
-
-
 from datetime import datetime
-from utils.logging import print_elapsed_time
 
 PUBLISHER_SOCKET = "tcp://127.0.0.1:5555"
 
@@ -67,10 +64,10 @@ def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
     # Measure time to build dicts
     for point in rt_data["markers"]:
         marker_data.append(np.array(point))
+    # Add analog data, force plates, etc. here if needed
 
     # logger.info(f"timestamp: \n{time.time()}")
     # logger.info(f"Marker data: \n{marker_data}")
-    # logger.info(f"Analog data: \n{analog_data}")
 
     return marker_data, analog_data
 

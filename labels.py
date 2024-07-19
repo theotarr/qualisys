@@ -1,3 +1,5 @@
+"""This file contains the labels for the 18 body markers used in the motion capture system in the correct index."""
+
 LABELS = [
     "RAC",
     "LAC",

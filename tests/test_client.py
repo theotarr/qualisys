@@ -4,7 +4,7 @@ from client import (
     get_qrt_data,
     connect_to_publisher,
 )
-from blit import BlitManager
+from utils.blit import BlitManager
 
 
 FRAMES_PER_SECOND = 60

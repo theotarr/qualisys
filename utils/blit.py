@@ -1,3 +1,9 @@
+"""Code taken from matplotlib examples. A simple manager for updating the screen with animated artists.
+
+https://matplotlib.org/stable/users/explain/animations/blitting.html#class-based-example
+"""
+
+
 class BlitManager:
     def __init__(self, canvas, animated_artists=()):
         """
@@ -17,7 +23,8 @@ class BlitManager:
 
         for a in animated_artists:
             self.add_artist(a)
-        # grab the background on every draw
+
+        # Grab the background on every draw.
         self.cid = canvas.mpl_connect("draw_event", self.on_draw)
 
     def on_draw(self, event):
