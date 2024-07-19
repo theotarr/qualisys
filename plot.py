@@ -1,3 +1,4 @@
+import json
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,18 +21,21 @@ DESIRED_ANGLE = 160
 FRAMES_PER_SECOND = 30
 PAUSE_BETWEEN_FRAMES = 1 / FRAMES_PER_SECOND
 
-left_com_pos = None
-right_com_pos = None
+left_arm_length = None
+right_arm_length = None
+arm_length = None
+left_offset = None
+right_offset = None
+swing_amplitude = None
 
 
-def calc_desired_arm_vector(shoulder, com, desired_angle, arm: str):
-    current_vector = com - shoulder
-    x_pos = left_com_pos if arm == "left" else right_com_pos
+def calc_desired_arm_vector(is_front, sep_constant, arm_offset):
+    y = swing_amplitude if is_front else -swing_amplitude
     desired_vector = np.array(
         [
-            x_pos,
-            np.sin(np.radians(desired_angle)) * np.linalg.norm(current_vector),
-            np.cos(np.radians(desired_angle)) * np.linalg.norm(current_vector),
+            sep_constant + arm_offset,
+            y,
+            # np.cos(np.radians(angle)) * arm_length,
         ]
     )
     return desired_vector
@@ -40,83 +44,61 @@ def calc_desired_arm_vector(shoulder, com, desired_angle, arm: str):
 def plot_2d_arm(
     shoulder, com, arm: str, com_point, forward_com_point, backward_com_point
 ):
-    x_off = shoulder[0] - 1000
-    y_off = shoulder[1] - 1000
-    shoulder[0] = 1000
-    shoulder[1] = 1000
-
-    com[0] -= x_off
-    com[1] -= y_off
-
-    if arm == "left":
-        com[0] -= 100
-        shoulder[0] -= 100
-    else:
-        com[0] += 100
-        shoulder[0] += 100
-
-    # ax.scatter(com[0], com[1], color=color, s=point_size, zorder=10)
+    print(left_offset, right_offset)
+    sep_constant = 100 if arm == 'right' else -100
+    arm_constant = right_offset if arm == 'right' else left_offset
+    
+    com[0] = com[0] - shoulder[0] + sep_constant
+    com[1] = com[1] - shoulder[1]
     com_point.set_data([com[0]], [com[1]])
+    
+    
 
-    # arm_length = np.linalg.norm(com - shoulder)
-    forward_com = calc_desired_arm_vector(shoulder, com, DESIRED_ANGLE)
-    backward_com = calc_desired_arm_vector(shoulder, com, 360 - DESIRED_ANGLE)
-
-    forward_com[1] += shoulder[1]
-    backward_com[1] += shoulder[1]
+    forward_com = calc_desired_arm_vector(True, sep_constant, arm_constant)
+    backward_com = calc_desired_arm_vector(False, sep_constant, arm_constant)
 
     # Update the forward and backward com points
     forward_com_point.set_data([forward_com[0]], [forward_com[1]])
     backward_com_point.set_data([backward_com[0]], [backward_com[1]])
-    # ax.scatter(
-    #     [forward_com[0], backward_com[0]],
-    #     [forward_com[1], backward_com[1]],
-    #     color=[color, color],
-    #     s=point_size,
-    #     alpha=0.5,
-    #     zorder=5,
-    # )
 
 
 def load_com_calibration():
-    """Load the center of mass calibrations from a file"""
-    # Check if `coms.txt` exists
+    # Check if `calibration.json` exists
     try:
-        with open("coms.txt", "r") as f:
-            lines = f.readlines()
-            left_com_pos = np.array(
-                [
-                    float(i)
-                    for i in lines[0].split(":")[-1].strip().strip("[]").split(",")
-                ]
-            )
-            right_com_pos = np.array(
-                [
-                    float(i)
-                    for i in lines[1].split(":")[-1].strip().strip("[]").split(",")
-                ]
-            )
-        return left_com_pos, right_com_pos
+        with open("calibration.json", "r") as f:
+            # Replace None variables with the values from the file
+            data = json.load(f)
+            
+            global left_arm_length 
+            left_arm_length = data['left_arm_length']
+            global right_arm_length 
+            right_arm_length = data['right_arm_length']
+            global arm_length 
+            arm_length = data['arm_length']
+            global left_offset 
+            left_offset = data['left_offset']
+            global right_offset 
+            right_offset = data['right_offset']
+
     except FileNotFoundError:
         print("No COM calibration file found")
         return None, None
 
 
 def main():
+    # Load calibration and initialize variables
+    load_com_calibration()
+    global swing_amplitude
+    swing_amplitude = np.sin(np.radians(DESIRED_ANGLE)) * arm_length
+    
     client_logger = setup_client_logger()
     socket = connect_to_publisher(logger=client_logger)
-
-    # Check if we are calibrating the COMs
-    is_calibrating_coms = True
-    left, right = load_com_calibration()
-    if left and right:
-        is_calibrating_coms = False
 
     fig, ax = plt.subplots(figsize=(8, 8))
 
     # Set up the plot
-    ax.set_xlim(750, 1250)
-    ax.set_ylim(750, 1250)
+    ax.set_xlim(-250, 250)
+    ax.set_ylim(-250, 250)
     ax.set_aspect("equal")
 
     ax.set_xlabel("X")
@@ -138,18 +120,18 @@ def main():
     # Add the COMs and target COMs
     (left_com_point,) = ax.plot(0, 0, "bo", markersize=10, animated=True)
     (left_forward_com_point,) = ax.plot(
-        0, 0, "bo", markersize=20, alpha=0.7, animated=True
+        0, 0, "bo", markersize=40, alpha=0.7, animated=True, markerfacecolor='none', markeredgecolor='b'
     )
     (left_backward_com_point,) = ax.plot(
-        0, 0, "bo", markersize=20, alpha=0.7, animated=True
+        0, 0, "bo", markersize=40, alpha=0.7, animated=True, markerfacecolor='none', markeredgecolor='b'
     )
 
     (right_com_point,) = ax.plot(0, 0, "ro", markersize=10, animated=True)
     (right_forward_com_point,) = ax.plot(
-        0, 0, "ro", markersize=20, alpha=0.7, animated=True
+        0, 0, "ro",markerfacecolor='none', markeredgecolor='r', markersize=40, alpha=0.7, animated=True
     )
     (right_backward_com_point,) = ax.plot(
-        0, 0, "ro", markersize=20, alpha=0.7, animated=True
+        0, 0, "ro",markerfacecolor='none', markeredgecolor='r', markersize=40, alpha=0.7, animated=True
     )
 
     print("Starting animation...")
@@ -181,20 +163,6 @@ def main():
             markers, _ = get_qrt_data(logger=client_logger, socket=socket)
             print(f"Received frame {packet_number}, {len(markers)} markers")
             packet_number += 1
-
-            if is_calibrating_coms:
-                left_com_pos = np.array([markers[i][:3] for i in LEFT_COM_LABELS])
-                right_com_pos = np.array([markers[i][:3] for i in RIGHT_COM_LABELS])
-
-                print(f"Left COM: {left_com_pos}")
-                print(f"Right COM: {right_com_pos}")
-
-                # Save it to a file
-                with open("coms.txt", "w") as f:
-                    f.write(f"Left COM: {left_com_pos}\n")
-                    f.write(f"Right COM: {right_com_pos}\n")
-
-                continue
 
             # # Fill markers with random numbers if NAN
             # for i, marker in enumerate(markers):
