@@ -1,5 +1,11 @@
 # Arm Swing Visualization
 
+## IP addresses
+
+On the Harvard secure network, both the desktop PC for Qualisys data colletion and computer running the publisher server (`server.py`) must be connected to the network on the same way (WIFI or ETH), otherwise they won't be able to communicate between them (the first 2 sets of numbers in the IP address must be the same).
+
+You might need to modify the IP address and make it static so that they are on the same network.
+
 ## Installation
 
 ```bash
