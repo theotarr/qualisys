@@ -49,14 +49,14 @@ def setup_client_logger() -> logging.Logger:
 
 
 def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
-    """Get marker and force data from Motion Capture
+    """Get marker data from Motion Capture
 
     Args:
         logger (logging.Logger): logger
         socket (zmq.Socket): zmq publisher socket
 
     Returns:
-        dict: contains organized marker and force data
+        dict: contains organized marker data
     """
     # Retrieve data from server
     marker_data = []
@@ -65,16 +65,14 @@ def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
     rt_data = read_mocap_data(logger=logger, socket=socket)
 
     # Measure time to build dicts
-    for rt_id, data in rt_data.items():
-        if "marker" in rt_id:
-            marker_data.append(np.array(data))
-        elif "analog" in rt_id:
-            analog_data(np.array(data))
+    for point in rt_data["markers"]:
+        marker_data.append(
+            np.array(point)
+        )
 
     # logger.info(f"timestamp: \n{time.time()}")
-    # logger.info(f"Force data: \n{force_data}")
-    logger.info(f"Marker data: \n{marker_data}")
-    logger.info(f"Analog data: \n{analog_data}")
+    # logger.info(f"Marker data: \n{marker_data}")
+    # logger.info(f"Analog data: \n{analog_data}")
 
     return marker_data, analog_data
 
@@ -94,10 +92,10 @@ def read_mocap_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
         try:
             rt_data = json.loads(message)
         except json.JSONDecodeError as error:
-            logger.error(f"An error occurred while decoding JSON: {error}")
+            print(f"An error occurred while decoding JSON: {error}")
             return rt_data
 
     except Exception as general_error:
-        logger.error(f"An unexpected error occurred: {general_error}")
+        print(f"An unexpected error occurred: {general_error}")
 
     return rt_data

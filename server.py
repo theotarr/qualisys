@@ -1,4 +1,5 @@
 import zmq
+import time
 import json
 import asyncio
 import qtm_rt
@@ -9,14 +10,13 @@ IP_ADDRESS = "140.247.112.125"
 PASSWORD = "$KHU15"
 
 
-@print_elapsed_time()
+# @print_elapsed_time()
 def on_packet(packet):
     """Callback function that is called everytime a data packet arrives from QTM"""
     _, markers = packet.get_3d_markers()
 
-    points = [np.array([marker.x, marker.y, marker.z]) for marker in markers]
+    points = [[marker.x, marker.y, marker.z] for marker in markers]
     print(f"Received data for frame {packet.framenumber}, {len(points)} markers")
-    # print(points)
 
     dict_market = {"markers": points}
 
@@ -35,7 +35,10 @@ async def setup():
         if connection is None:
             print("Failed to connect to QTM")
             return None
+
         print("Connected to QTM")
+        await connection.stream_frames(components=["3d"], frames="frequency:30", on_packet=on_packet)
+        
         return connection
     except asyncio.TimeoutError:
         print("Connection attempt timed out")
@@ -43,6 +46,8 @@ async def setup():
     except Exception as e:
         print(f"Error connecting to QTM: {e}")
         return None
+    
+
 
 
 if __name__ == "__main__":
@@ -52,3 +57,16 @@ if __name__ == "__main__":
 
     asyncio.ensure_future(setup())
     asyncio.get_event_loop().run_forever()
+    
+    
+    # # This is a test to see if the pub/sub model works
+    # iteration = 0
+    
+    # while True:
+    #     time.sleep(0.05)
+        
+    #     print(iteration)
+    #     iteration += 1
+    #     publisher.send_string(json.dumps({
+    #         'markers': [0, 1, 2, 3, 4, 5]
+    #     }))
