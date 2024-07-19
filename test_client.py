@@ -105,11 +105,11 @@ def main():
     (left_com_point,) = ax.plot(0, 0, "bo", animated=True)
     (left_forward_com_point,) = ax.plot(0, 0, "bo", alpha=0.7, animated=True)
     (left_backward_com_point,) = ax.plot(0, 0, "bo", alpha=0.7, animated=True)
-    
+
     (right_com_point,) = ax.plot(0, 0, "ro", animated=True)
     (right_forward_com_point,) = ax.plot(0, 0, "ro", alpha=0.7, animated=True)
     (right_backward_com_point,) = ax.plot(0, 0, "ro", alpha=0.7, animated=True)
-    
+
     print("Starting animation...")
 
     bm = BlitManager(
@@ -124,11 +124,13 @@ def main():
             right_backward_com_point,
         ],
     )
-    plt.ion() # Turn on interactive mode
+    plt.ion()  # Turn on interactive mode
     plt.show(block=False)
-    
-    plt.pause(0.1) # Pause for some time to ensure that at least 1 frame is displayed and cached for future renders.
-    
+
+    plt.pause(
+        0.1
+    )  # Pause for some time to ensure that at least 1 frame is displayed and cached for future renders.
+
     packet_number = 0
 
     try:

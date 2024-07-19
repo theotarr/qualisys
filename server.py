@@ -37,8 +37,10 @@ async def setup():
             return None
 
         print("Connected to QTM")
-        await connection.stream_frames(components=["3d"], frames="frequency:30", on_packet=on_packet)
-        
+        await connection.stream_frames(
+            components=["3d"], frames="frequency:30", on_packet=on_packet
+        )
+
         return connection
     except asyncio.TimeoutError:
         print("Connection attempt timed out")
@@ -46,8 +48,6 @@ async def setup():
     except Exception as e:
         print(f"Error connecting to QTM: {e}")
         return None
-    
-
 
 
 if __name__ == "__main__":
@@ -57,14 +57,13 @@ if __name__ == "__main__":
 
     asyncio.ensure_future(setup())
     asyncio.get_event_loop().run_forever()
-    
-    
+
     # # This is a test to see if the pub/sub model works
     # iteration = 0
-    
+
     # while True:
     #     time.sleep(0.05)
-        
+
     #     print(iteration)
     #     iteration += 1
     #     publisher.send_string(json.dumps({

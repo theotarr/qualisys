@@ -66,9 +66,7 @@ def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
 
     # Measure time to build dicts
     for point in rt_data["markers"]:
-        marker_data.append(
-            np.array(point)
-        )
+        marker_data.append(np.array(point))
 
     # logger.info(f"timestamp: \n{time.time()}")
     # logger.info(f"Marker data: \n{marker_data}")
