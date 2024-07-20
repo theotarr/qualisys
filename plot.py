@@ -15,7 +15,7 @@ from client import (
 from utils.blit import BlitManager
 
 
-DESIRED_ANGLE = 160  # Desired angle of the swing (in degrees based on a bearing). So 0° is straight up, 90° is straight out.
+SWING_ANGLE = 160  # Desired swing angle (in degrees based on a bearing). So 0° is straight up, 90° is straight out.
 SEPARATE_CONSTANT = 100  # Constant to separate the arms from the center of the screen.
 
 # Global variables to store the calibrated values.
@@ -31,9 +31,8 @@ def calc_target_pos(arm: str, direction: str):
     """Calculate the target position for the center of mass for the forward and backward swing.
 
     Args:
-        is_front (bool): Whether the target is for the forward swing.
-        sep_constant (float): Constant to separate the arms from the center of the screen.
-        arm_offset (float): Offset of the arm.
+        arm (str): Which arm to calculate the target position for.
+        direction (str): The direction of the swing (forward or backward).
 
     Returns:
         np.array: The target position for the center of mass.
@@ -45,9 +44,9 @@ def calc_target_pos(arm: str, direction: str):
         else -SEPARATE_CONSTANT + left_offset
     )
     y = swing_amplitude if direction == "forward" else -swing_amplitude
-    desired_vector = np.array([x, y])
+    pos = np.array([x, y])
 
-    return desired_vector
+    return pos
 
 
 def update_com_pos(com_plot, shoulder, com, arm: str):
@@ -98,9 +97,9 @@ def main():
     # Load calibration and initialize variables.
     load_calibration()
 
-    # Set the swing amplitude based on the desired angle and calibrated arm length (avg of left and right).
+    # Set the swing amplitude based on the desired swing angle and calibrated arm length (avg of left and right).
     global swing_amplitude
-    swing_amplitude = np.sin(np.radians(DESIRED_ANGLE)) * arm_length
+    swing_amplitude = np.sin(np.radians(SWING_ANGLE)) * arm_length
 
     # Connect to the publisher.
     client_logger = setup_client_logger()
@@ -114,7 +113,7 @@ def main():
     ax.set_aspect("equal")
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
-    ax.set_title(f"2D Arm Swing Visualization - Angle: {DESIRED_ANGLE}°")
+    ax.set_title(f"2D Arm Swing Visualization - Angle: {SWING_ANGLE}°")
 
     # Display the packet number in the top left.
     packet_number = ax.annotate(
