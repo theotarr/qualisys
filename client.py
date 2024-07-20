@@ -5,6 +5,7 @@ import logging
 import numpy as np
 from datetime import datetime
 
+# URL for the publisher socket, change this if the publisher is running on a different IP or port.
 PUBLISHER_SOCKET = "tcp://127.0.0.1:5555"
 
 
