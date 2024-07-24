@@ -7,10 +7,6 @@ from client import (
 from utils.blit import BlitManager
 
 
-FRAMES_PER_SECOND = 60
-PAUSE_BETWEEN_FRAMES = 1 / FRAMES_PER_SECOND
-
-
 def main():
     client_logger = setup_client_logger()
     socket = connect_to_publisher(logger=client_logger)
@@ -55,7 +51,6 @@ def main():
 
     try:
         while True:
-            plt.pause(PAUSE_BETWEEN_FRAMES)
             frame_number, markers, _ = get_qrt_data(logger=client_logger, socket=socket)
             packet_number += 1
             print(f"Received frame {frame_number}, {len(markers)} markers")
