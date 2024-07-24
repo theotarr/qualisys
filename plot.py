@@ -116,7 +116,7 @@ def main():
     ax.set_title(f"2D Arm Swing Visualization - Angle: {SWING_ANGLE}°")
 
     # Display the packet number in the top left.
-    packet_number = ax.annotate(
+    packet_number_plot = ax.annotate(
         "0",
         (0, 1),
         xycoords="axes fraction",
@@ -179,7 +179,7 @@ def main():
     bm = BlitManager(
         fig.canvas,
         [
-            packet_number,
+            packet_number_plot,
             left_com_plot,
             right_com_plot,
         ],
@@ -196,7 +196,8 @@ def main():
     try:
         # Continuously fetch data from the publisher and update the plot.
         while True:
-            markers, _ = get_qrt_data(logger=client_logger, socket=socket)
+            frame_number, markers, _ = get_qrt_data(logger=client_logger, socket=socket)
+            packet_number = frame_number
             print(f"Received frame {packet_number}, {len(markers)} markers")
 
             # Get the shoulder and center of mass points for the right and left arms.
@@ -233,8 +234,7 @@ def main():
             )
 
             # Update and render the packet number.
-            packet_number.set_text(f"packet: {packet_number}")
-            packet_number += 1
+            packet_number_plot.set_text(f"packet: {packet_number}")
 
             # Blitting manager only updates changed artists
             bm.update()

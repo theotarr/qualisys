@@ -6,16 +6,20 @@ import qtm_rt
 
 IP_ADDRESS = os.environ.get("IP_ADDRESS", "140.247.112.125")
 PASSWORD = os.environ.get("PASSWORD", "$KHU15")
+frame_number = 0
 
 
 def on_packet(packet):
     """Callback function that is called everytime a data packet arrives from QTM"""
     _, markers = packet.get_3d_markers()
 
+    global frame_number
+    frame_number = packet.framenumber
+
     points = [[marker.x, marker.y, marker.z] for marker in markers]
     print(f"Received data for frame {packet.framenumber}, {len(points)} markers")
 
-    dict_market = {"markers": points}
+    dict_market = {"frame_number": frame_number, "markers": points}
     marker_json = json.dumps(dict_market)
 
     # Publish message to all subscribers.

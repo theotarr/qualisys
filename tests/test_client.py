@@ -56,9 +56,9 @@ def main():
     try:
         while True:
             plt.pause(PAUSE_BETWEEN_FRAMES)
-            markers, _ = get_qrt_data(logger=client_logger, socket=socket)
+            frame_number, markers, _ = get_qrt_data(logger=client_logger, socket=socket)
             packet_number += 1
-            print(f"Received data for frame {packet_number}, {len(markers)} markers")
+            print(f"Received frame {frame_number}, {len(markers)} markers")
 
             fr_number.set_text(f"packet: {packet_number}")
             bm.update()

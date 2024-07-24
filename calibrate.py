@@ -20,8 +20,8 @@ def main():
 
     try:
         while True:
-            markers, _ = get_qrt_data(logger=client_logger, socket=socket)
-            print(f"Received data, {len(markers)} markers")
+            frame_number, markers, _ = get_qrt_data(logger=client_logger, socket=socket)
+            print(f"Received frame {frame_number}, {len(markers)} markers")
 
             # Get the center of mass and shoulder positions for the right and left arms.
             left_com_pos = np.mean(

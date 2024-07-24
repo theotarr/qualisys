@@ -57,10 +57,13 @@ def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
         dict: contains organized marker data
     """
     # Retrieve data from server
+    frame_number = 0
     marker_data = []
     analog_data = []
 
     rt_data = read_mocap_data(logger=logger, socket=socket)
+
+    frame_number = rt_data['frame_number']
 
     # Measure time to build dicts
     for point in rt_data["markers"]:
@@ -70,7 +73,7 @@ def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
     # logger.info(f"timestamp: \n{time.time()}")
     # logger.info(f"Marker data: \n{marker_data}")
 
-    return marker_data, analog_data
+    return frame_number, marker_data, analog_data
 
 
 def read_mocap_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
