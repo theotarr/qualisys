@@ -63,7 +63,7 @@ def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
 
     rt_data = read_mocap_data(logger=logger, socket=socket)
 
-    frame_number = rt_data['frame_number']
+    frame_number = rt_data["frame_number"]
 
     # Measure time to build dicts
     for point in rt_data["markers"]:
