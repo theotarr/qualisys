@@ -4,8 +4,8 @@ import json
 import asyncio
 import qtm_rt
 
-IP_ADDRESS = os.environ.get("IP_ADDRESS", "140.247.112.125")
-PASSWORD = os.environ.get("PASSWORD", "$KHU15")
+IP_ADDRESS = os.environ.get("IP_ADDRESS", "140.247.112.125") # Don't worry, it's firewalled.
+PASSWORD = os.environ.get("PASSWORD", "$khu15")
 
 
 def on_packet(packet):
