@@ -1,13 +1,13 @@
 import json
 import numpy as np
-from labels import (
+from utils.labels import (
     RIGHT_COM_LABELS,
     LEFT_COM_LABELS,
     RIGHT_SHOULDER_LABELS,
     LEFT_SHOULDER_LABELS,
 )
 
-from client import (
+from utils.client import (
     setup_client_logger,
     get_qrt_data,
     connect_to_publisher,

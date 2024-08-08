@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from client import (
+from utils.client import (
     setup_client_logger,
     get_qrt_data,
     connect_to_publisher,

@@ -1,4 +1,5 @@
+c3d==0.5.2
 matplotlib==3.9.1
-numpy==2.0.0
+numpy==2.0.1
 pyzmq==26.0.3
 qtm_rt==3.0.2

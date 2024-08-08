@@ -28,11 +28,14 @@ python calibrate.py
 
 While this file is running, you should see information logged to the terminal
 
-**Wait until your subject has their arms at a resting position and then stop running the program.** This will save the last frame of data as the measurements for the visualization. 
-
+**Wait until your subject has their arms at a resting position and then stop running the program.** This will save the last frame of data as the measurements for the visualization.
 
 3. Run the `plot.py` file client to connect to the socket and visualize the arm swing in real-time.
 
 ```bash
 python plot.py
 ```
+
+## Demo
+
+To run a demo version of this visualization, run the `demo_server.py` and then run `plot.py` see a playback of one data collection interval.
