@@ -54,5 +54,9 @@ if __name__ == "__main__":
     publisher.bind("tcp://*:5555")
 
     # Set up the asyncio event loop to continuously receive data and then publish messages.
-    asyncio.ensure_future(setup())
-    asyncio.get_event_loop().run_forever()
+    try:
+        asyncio.ensure_future(setup())
+        asyncio.get_event_loop().run_forever()
+    except KeyboardInterrupt:
+        print("Exiting...")
+        exit(0)
