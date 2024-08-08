@@ -2,9 +2,13 @@
 
 ## IP addresses
 
-On the Harvard secure network, both the desktop PC for Qualisys data colletion and computer running the publisher server (`server.py`) must be connected to the network on the same way (WIFI or ETH), otherwise they won't be able to communicate between them (the first 2 sets of numbers in the IP address must be the same).
+On the "Harvard Secure" network, both the desktop PC for Qualisys data colletion and computer running the publisher server (`server.py`) must be connected to the network the same way (WIFI or Ethernet), otherwise they won't be able to communicate. To check that the computers can connect they must have matching first 2 sets of numbers in their IP addresses.
 
-You might need to modify the IP address and make it static so that they are on the same network.
+You might need to modify the IP address and make them static so that they are on the same network.
+
+## Demo
+
+To run a demo version of this visualization, run `python demo_server.py` and then run `python plot.py` to see a playback of one data collection interval.
 
 ## Installation
 
@@ -35,7 +39,3 @@ While this file is running, you should see information logged to the terminal
 ```bash
 python plot.py
 ```
-
-## Demo
-
-To run a demo version of this visualization, run the `demo_server.py` and then run `plot.py` see a playback of one data collection interval.
