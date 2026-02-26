@@ -52,6 +52,9 @@ def main():
     try:
         while True:
             frame_number, markers, _ = get_qrt_data(logger=client_logger, socket=socket)
+            if frame_number is None:
+                continue
+
             packet_number += 1
             print(f"Received frame {frame_number}, {len(markers)} markers")
 

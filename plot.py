@@ -197,6 +197,9 @@ def main():
         # Continuously fetch data from the publisher and update the plot.
         while True:
             frame_number, markers, _ = get_qrt_data(logger=client_logger, socket=socket)
+            if frame_number is None or len(markers) == 0:
+                continue
+
             packet_number = frame_number
             print(f"Received frame {packet_number}, {len(markers)} markers")
 
