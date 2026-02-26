@@ -1,13 +1,32 @@
 # Arm Swing Visualization
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+
 ![Demo replay](docs/assets/demo.gif)
 
 Real-time infrared marker tracking + visualization pipeline using **Qualisys QTM**, a lightweight **ZeroMQ publisher**, and a Python visualization client.
+
+> Track infrared markers in real time, calibrate arm movement, and visualize swing dynamics with either live QTM streams or an included replay demo.
 
 This repo supports two paths:
 
 1. **Live mode**: stream marker data directly from Qualisys Track Manager (QTM).
 2. **Demo mode**: replay a bundled C3D file so anyone can run it without lab hardware.
+
+---
+
+## Getting started in 60 seconds
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python demo_server.py
+# in another terminal:
+python calibrate.py
+# in another terminal:
+python plot.py
+```
 
 ---
 
@@ -162,4 +181,4 @@ ffmpeg -y -i docs/assets/demo.mp4 -vf "fps=15,scale=960:-1:flags=lanczos" docs/a
 - Demo path is included for contributors without hardware.
 - Runtime config is environment-driven (no secrets in source).
 - Calibration and troubleshooting flow is documented.
-- Recommended before public launch: add a `LICENSE` file.
+- Licensed under MIT (`LICENSE`).
