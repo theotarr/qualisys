@@ -46,55 +46,53 @@ def setup_client_logger() -> logging.Logger:
     return logger
 
 
-def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
-    """Get marker data from Motion Capture
-
-    Args:
-        logger (logging.Logger): logger
-        socket (zmq.Socket): zmq publisher socket
+def get_qrt_data(logger: logging.Logger, socket: zmq.Socket) -> tuple:
+    """Get marker data from Motion Capture.
 
     Returns:
-        dict: contains organized marker data
+        tuple: (frame_number | None, marker_data, analog_data)
     """
-    # Retrieve data from server
-    frame_number = 0
+    frame_number = None
     marker_data = []
     analog_data = []
 
     rt_data = read_mocap_data(logger=logger, socket=socket)
+    if not rt_data:
+        if logger:
+            logger.warning("No mocap data received or failed to parse frame")
+        return frame_number, marker_data, analog_data
 
-    frame_number = rt_data["frame_number"]
+    frame_number = rt_data.get("frame_number")
 
-    # Measure time to build dicts
-    for point in rt_data["markers"]:
+    for point in rt_data.get("markers", []):
         marker_data.append(np.array(point))
-    # Add analog data, force plates, etc. here if needed
-
-    # logger.info(f"timestamp: \n{time.time()}")
-    # logger.info(f"Marker data: \n{marker_data}")
 
     return frame_number, marker_data, analog_data
 
 
-def read_mocap_data(logger: logging.Logger, socket: zmq.Socket) -> dict:
-    """Read mocap data from publisher node
+def read_mocap_data(logger: logging.Logger, socket: zmq.Socket) -> dict | None:
+    """Read mocap data from publisher node.
 
-    Args:
-        logger (logging.Logger): logger
-        socket (zmq.Socket): zmq socket
     Returns:
-        dict: contains raw data from server
+        dict | None: raw data from server, or None on error
     """
+    rt_data = None
     try:
-        # Read data from publisher
         message = socket.recv_string()
         try:
             rt_data = json.loads(message)
         except json.JSONDecodeError as error:
-            print(f"An error occurred while decoding JSON: {error}")
-            return rt_data
+            if logger:
+                logger.error(f"An error occurred while decoding JSON: {error}")
+            else:
+                print(f"An error occurred while decoding JSON: {error}")
+            return None
 
     except Exception as general_error:
-        print(f"An unexpected error occurred: {general_error}")
+        if logger:
+            logger.error(f"An unexpected error occurred: {general_error}")
+        else:
+            print(f"An unexpected error occurred: {general_error}")
+        return None
 
     return rt_data

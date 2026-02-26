@@ -21,6 +21,9 @@ def main():
     try:
         while True:
             frame_number, markers, _ = get_qrt_data(logger=client_logger, socket=socket)
+            if frame_number is None or len(markers) == 0:
+                continue
+
             print(f"Received frame {frame_number}, {len(markers)} markers")
 
             # Get the center of mass and shoulder positions for the right and left arms.
