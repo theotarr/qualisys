@@ -1,46 +1,41 @@
-"""This is a demo of the arm swing visualization using a sample QTM file as input."""
-import c3d
-import zmq
+"""Replay a sample C3D file as a fake real-time Qualisys marker stream."""
+
 import json
+import os
 import time
 
-ORIGINAL_FPS = 200
-FPS = 40
+import c3d
+import zmq
+
+FPS = int(os.environ.get("DEMO_FPS", "40"))
+FRAME_STEP = int(os.environ.get("DEMO_FRAME_STEP", "5"))
+PUBLISH_BIND = os.environ.get("PUBLISH_BIND", "tcp://*:5555")
+C3D_PATH = os.environ.get("DEMO_C3D_PATH", "data/arm_swing.c3d")
 
 
-def get_packet(frame: int, markers: list):
-    print(f"Received data for frame {frame}, {len(markers)} markers")
+def publish_packet(frame: int, markers: list):
+    print(f"Replay frame {frame} ({len(markers)} markers)")
 
     markers = markers.tolist()
-
     markers = [[marker[0], marker[1], marker[2]] for marker in markers]
-    marker_json = json.dumps(
-        {
-            "frame_number": frame,
-            "markers": markers,
-        }
-    )
-
+    marker_json = json.dumps({"frame_number": frame, "markers": markers})
     publisher.send_string(marker_json)
 
 
 if __name__ == "__main__":
-    # Set up the publisher.
     context = zmq.Context()
     publisher = context.socket(zmq.PUB)
-    publisher.bind("tcp://*:5555")
+    publisher.bind(PUBLISH_BIND)
+    print(f"Publishing demo marker stream on {PUBLISH_BIND}")
 
-    # Read the C3D file.
-    reader = c3d.Reader(open("data/arm_swing.c3d", "rb"))
-    frames = reader.read_frames()
+    with open(C3D_PATH, "rb") as c3d_file:
+        reader = c3d.Reader(c3d_file)
+        frames = reader.read_frames()
 
-    # Calculate the delay between frames based on the original and desired FPS.
-    delay = 1 / (FPS)
+        delay = 1 / FPS
+        for i, points, _ in frames:
+            if i % FRAME_STEP != 0:
+                continue
 
-    # Publish the frames.
-    for i, points, analog in frames:
-        if i % 5 != 0: # Only display 
-            continue
-
-        get_packet(i, points)
-        time.sleep(delay)  # Introduce a delay to achieve the desired frame rate.
+            publish_packet(i, points)
+            time.sleep(delay)

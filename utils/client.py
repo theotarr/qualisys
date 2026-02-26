@@ -5,8 +5,8 @@ import logging
 import numpy as np
 from datetime import datetime
 
-# URL for the publisher socket, change this if the publisher is running on a different IP or port.
-PUBLISHER_SOCKET = "tcp://127.0.0.1:5555"
+# URL for the publisher socket; override with environment variable when needed.
+PUBLISHER_SOCKET = os.environ.get("PUBLISHER_SOCKET", "tcp://127.0.0.1:5555")
 
 
 def connect_to_publisher(logger: logging.Logger = None) -> zmq.Socket:
